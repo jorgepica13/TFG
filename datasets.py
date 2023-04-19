@@ -4,7 +4,7 @@ import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
 
 # batch size
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 
 # the training transforms
 train_transform = transforms.Compose([
@@ -32,13 +32,13 @@ valid_transform = transforms.Compose([
 
 # training dataset
 train_dataset = datasets.ImageFolder(
-    root=r'C:\Users\jorge\Desktop\DATASET\train',
+    root='/content/drive/My Drive/DATASET/train',
     transform=train_transform
 )
 
 # validation dataset
 valid_dataset = datasets.ImageFolder(
-    root=r'C:\Users\jorge\Desktop\DATASET\valid',
+    root='/content/drive/My Drive/DATASET/valid/',
     transform=valid_transform
 )
 
