@@ -13,7 +13,7 @@ def save_model(epochs, model, optimizer, criterion):
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': criterion,
-                }, 'C:/Users/jorge/Desktop/outputs/model.pth')
+                }, '/content/drive/My Drive/Training CNN Model/outputs/model.pth')
     
 def save_plots(train_acc, valid_acc, train_loss, valid_loss):
     """
@@ -27,12 +27,12 @@ def save_plots(train_acc, valid_acc, train_loss, valid_loss):
     )
     plt.plot(
         valid_acc, color='blue', linestyle='-', 
-        label='validataion accuracy'
+        label='validation accuracy'
     )
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.savefig('C:/Users/jorge/Desktop/outputs/accuracy.png')
+    plt.savefig('/content/drive/My Drive/Training CNN Model/outputs/accuracy.png')
     
     # loss plots
     plt.figure(figsize=(10, 7))
@@ -42,9 +42,9 @@ def save_plots(train_acc, valid_acc, train_loss, valid_loss):
     )
     plt.plot(
         valid_loss, color='red', linestyle='-', 
-        label='validataion loss'
+        label='validation loss'
     )
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('C:/Users/jorge/Desktop/outputs/loss.png')
+    plt.savefig('/content/drive/My Drive/Training CNN Model/outputs/loss.png')
