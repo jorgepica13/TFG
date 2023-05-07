@@ -10,7 +10,7 @@ import os
 import matplotlib.pyplot as plt
 
 from torchvision import transforms
-from config import (
+from seg_config_multiclass import (
     VIS_LABEL_MAP as viz_map
 )
 

@@ -8,7 +8,7 @@ import numpy as np
 import torch
 import albumentations as A
 
-from utils import get_label_mask, set_class_values
+from seg_utils import get_label_mask, set_class_values
 from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 

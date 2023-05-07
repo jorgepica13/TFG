@@ -7,7 +7,7 @@ import torch
 import numpy as np
 
 from tqdm import tqdm
-from utils import draw_translucent_seg_maps
+from seg_utils import draw_translucent_seg_maps
 from metrics import pix_acc
 
 def train(
