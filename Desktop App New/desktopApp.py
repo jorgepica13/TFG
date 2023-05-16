@@ -8,10 +8,9 @@
 """
 
 
-import PageOneFunctions, PageTwoFunctions
+import PageTwoFunctions
 from PIL import ImageTk, Image
 from tkinter import filedialog
-import LoadFile
 
 #Python program for creating an application to switch pages using trinket.  
   
@@ -56,7 +55,7 @@ def clear_frame(self):
     nwidget = 0
     
     for widgets in self.winfo_children():
-        print(widgets)
+        #print(widgets)
         if(nwidget > 2):
             widgets.destroy()
         
@@ -79,7 +78,7 @@ def load_file(self):
         num_widgets = num_widgets + 1
         
     global image_selected
-    self.filename = filedialog.askopenfilename(initialdir=r"C:\Users\jorge\Desktop\DATASET\test",
+    self.filename = filedialog.askopenfilename(initialdir=r"C:\Users\jorge\Desktop\galaxy_segmentation\test_images",
                                                  title="Select A File",
                                                  filetypes=(("jpg files", "*.jpg"), ("all files", "*.*")))
     #image_created = classify_image(self.filename)
@@ -152,6 +151,11 @@ class PageOne(tk.Frame):
         #                     command=lambda: controller.show_frame(PageTwo))  
         # button3.place(x=500, y=10)
   
+    
+def show_images(path_image):
+    print(path_image)
+        
+    
 class PageTwo(tk.Frame):  
   
     def __init__(self, parent, controller):  
@@ -163,11 +167,11 @@ class PageTwo(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.place(x=20, y=10)
         
-        label = tk.Label(self, text="Pulse en el boton para cargar \nla imagen que desea segmentar\n")
+        label = tk.Label(self, text="Pulse en el boton para llevar a cabo el proceso de segmentación y clasificación\n")
         label.pack()
   
-        button2 = tk.Button(self, text="Load File",  
-                            command=lambda: PageTwoFunctions.load_file(self))  
+        button2 = tk.Button(self, text="Start Process",  
+                            command=lambda: show_images(name))  
         button2.pack()  
           
 
