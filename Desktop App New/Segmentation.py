@@ -50,4 +50,4 @@ def seg_inference(image_path):
     cv2.imwrite(new_image, final_image)
     cv2.imwrite(new_mask, final_mask)
     
-    return new_image
+    return new_image, new_mask

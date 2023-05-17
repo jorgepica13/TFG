@@ -7,8 +7,6 @@
 @author: JORGE PICADO CARINO
 """
 
-
-import PageTwoFunctions
 from PIL import ImageTk, Image
 from tkinter import filedialog
 
@@ -157,7 +155,7 @@ class PageOne(tk.Frame):
 def show_images(self, path_image):
     print('INICIO')
     
-    seg_im = Segmentation.seg_inference(path_image)
+    seg_im, mask_im = Segmentation.seg_inference(path_image)
     
     global im0
     im0 = ImageTk.PhotoImage(Image.open(seg_im))
@@ -167,7 +165,20 @@ def show_images(self, path_image):
                          width=256)
     im0_label.place(x=50, y=250)
     
-    print('HECHO')
+    print('SEGMENTATION')
+    
+    print(mask_im)
+    cut_im = Cut.cut_inference(path_image, mask_im)
+    
+    global im1
+    im1 = ImageTk.PhotoImage(Image.open(cut_im))
+    
+    im1_label = tk.Label(self, image=im1,
+                         height=300,
+                         width=300)
+    im1_label.place(x=350, y=250)
+    
+    print('DONE')
     
 class PageTwo(tk.Frame):  
   
