@@ -8,6 +8,8 @@ import seg_config_bin, seg_model, seg_utils
 
 from PIL import Image
 
+import cv2
+
 def seg_inference(image_path):
     # Construct the argument parser.
     '''
@@ -40,8 +42,12 @@ def seg_inference(image_path):
     outputs = outputs['out']
     segmented_image = seg_utils.draw_segmentation_map(outputs)
         
-    final_image = seg_utils.image_overlay(image, segmented_image)
+    final_image, final_mask = seg_utils.image_overlay(image, segmented_image)
     # cv2_imshow(final_image)
     #cv2.waitKey(1)
-    #cv2.imwrite(os.path.join(out_dir, image_path), final_image)
-    return final_image
+    new_image = 'C:/Users/jorge/Desktop/AppResults/seg_' + image_path[-26:] 
+    new_mask = 'C:/Users/jorge/Desktop/AppResults/mask_' + image_path[-26:-4] + '.png'
+    cv2.imwrite(new_image, final_image)
+    cv2.imwrite(new_mask, final_mask)
+    
+    return new_image

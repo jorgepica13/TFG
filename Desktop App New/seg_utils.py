@@ -10,7 +10,7 @@ import os
 import matplotlib.pyplot as plt
 
 from torchvision import transforms
-from seg_config_multiclass import (
+from seg_config_bin import (
     VIS_LABEL_MAP as viz_map
 )
 
@@ -205,4 +205,14 @@ def image_overlay(image, segmented_image):
     image = np.array(image)
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     cv2.addWeighted(image, alpha, segmented_image, beta, gamma, image)
-    return image
+    
+    alpha = 0 # transparency for the original image
+    beta = 1.0 # transparency for the segmentation map
+    gamma = 0 # scalar added to each sum
+
+    segmented_mask = cv2.cvtColor(segmented_image, cv2.COLOR_RGB2BGR)
+    mask = np.array(image)
+    mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
+    cv2.addWeighted(mask, alpha, segmented_mask, beta, gamma, mask)
+    
+    return image, mask

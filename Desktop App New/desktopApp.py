@@ -12,6 +12,8 @@ import PageTwoFunctions
 from PIL import ImageTk, Image
 from tkinter import filedialog
 
+import Segmentation, Cut
+
 #Python program for creating an application to switch pages using trinket.  
   
 import tkinter as tk  
@@ -152,9 +154,20 @@ class PageOne(tk.Frame):
         # button3.place(x=500, y=10)
   
     
-def show_images(path_image):
-    print(path_image)
-        
+def show_images(self, path_image):
+    print('INICIO')
+    
+    seg_im = Segmentation.seg_inference(path_image)
+    
+    global im0
+    im0 = ImageTk.PhotoImage(Image.open(seg_im))
+    
+    im0_label = tk.Label(self, image=im0,
+                         height=256,
+                         width=256)
+    im0_label.place(x=50, y=250)
+    
+    print('HECHO')
     
 class PageTwo(tk.Frame):  
   
@@ -171,7 +184,7 @@ class PageTwo(tk.Frame):
         label.pack()
   
         button2 = tk.Button(self, text="Start Process",  
-                            command=lambda: show_images(name))  
+                            command=lambda: show_images(self, name))  
         button2.pack()  
           
 
