@@ -10,7 +10,7 @@
 from PIL import ImageTk, Image
 from tkinter import filedialog
 
-import Segmentation, Cut, restore
+import segmentation, cut, restore, classification
 
 #Python program for creating an application to switch pages using trinket.  
   
@@ -155,7 +155,7 @@ class PageOne(tk.Frame):
 def show_images(self, path_image):
     print('INICIO')
     
-    seg_im, mask_im = Segmentation.seg_inference(path_image)
+    seg_im, mask_im = segmentation.seg_inference(path_image)
     
     global im0
     im0 = ImageTk.PhotoImage(Image.open(seg_im))
@@ -167,7 +167,7 @@ def show_images(self, path_image):
     
     print('SEGMENTATION')
     
-    cut_im = Cut.cut_inference(path_image, mask_im)
+    cut_im = cut.cut_inference(path_image, mask_im)
     
     global im1
     im1 = ImageTk.PhotoImage(Image.open(cut_im))
@@ -189,6 +189,20 @@ def show_images(self, path_image):
                          width=256)
     im2_label.place(x=650, y=250)
     
+    print('CLASSIFICATION')
+    
+    print(res_im)
+    label_class, confidence_class = classification.class_inference(res_im)
+    
+    global im3
+    im3 = ImageTk.PhotoImage(Image.open(path_image))
+    
+    im3_label = tk.Label(self, image=im3,
+                         height=256,
+                         width=256)
+    im3_label.place(x=950, y=250)
+    
+    print(label_class, ' ', confidence_class)
     print('DONE')
     
 class PageTwo(tk.Frame):  
