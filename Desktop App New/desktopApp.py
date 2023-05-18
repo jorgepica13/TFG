@@ -10,7 +10,7 @@
 from PIL import ImageTk, Image
 from tkinter import filedialog
 
-import Segmentation, Cut
+import Segmentation, Cut, restore
 
 #Python program for creating an application to switch pages using trinket.  
   
@@ -167,16 +167,27 @@ def show_images(self, path_image):
     
     print('SEGMENTATION')
     
-    print(mask_im)
     cut_im = Cut.cut_inference(path_image, mask_im)
     
     global im1
     im1 = ImageTk.PhotoImage(Image.open(cut_im))
     
     im1_label = tk.Label(self, image=im1,
-                         height=300,
-                         width=300)
+                         height=256,
+                         width=256)
     im1_label.place(x=350, y=250)
+    
+    print('RESTORATION')
+    
+    res_im = restore.process_input(cut_im)
+    
+    global im2
+    im2 = ImageTk.PhotoImage(Image.open(res_im))
+    
+    im2_label = tk.Label(self, image=im2,
+                         height=256,
+                         width=256)
+    im2_label.place(x=650, y=250)
     
     print('DONE')
     

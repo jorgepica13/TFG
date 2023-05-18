@@ -3,62 +3,32 @@
 @author: JORGE PICADO CARINO
 """
 
-# Clone Real-ESRGAN and enter the Real-ESRGAN
-# !git clone https://github.com/xinntao/Real-ESRGAN.git
-#%cd Real-ESRGAN
+from RealESRGAN import RealESRGAN
+from PIL import Image
+import numpy as np
+import torch
+import cv2
 
-# Set up the environment
-#!pip install basicsr
-#!pip install facexlib
-#!pip install gfpgan
-# !pip install -r requirements.txt
-# !python setup.py develop
+# Create model
 
-import os
-import files
-import shutil
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# print('device:', device)
 
-upload_folder = 'upload'
-result_folder = 'results'
+model_scale = "4" #@param ["2", "4", "8"] {allow-input: false}
 
-if os.path.isdir(upload_folder):
-    shutil.rmtree(upload_folder)
-if os.path.isdir(result_folder):
-    shutil.rmtree(result_folder)
-os.mkdir(upload_folder)
-os.mkdir(result_folder)
+model = RealESRGAN(device, scale=int(model_scale))
+model.load_weights(f'weights/RealESRGAN_x{model_scale}.pth')
 
-# upload images
-uploaded = files.upload()
-for filename in uploaded.keys():
-  dst_path = os.path.join(upload_folder, filename)
-  print(f'move {filename} to {dst_path}')
-  shutil.move(filename, dst_path)
 
-# if it is out of memory, try to use the `--tile` option
-# We upsample the image with the scale factor X3.5
-!python inference_realesrgan.py -n RealESRGAN_x4plus -i upload --outscale 3.5 --face_enhance
-# Arguments
-# -n, --model_name: Model names
-# -i, --input: input folder or image
-# --outscale: Output scale, can be arbitrary scale factore.
+# Upload and upscale images or .tar archives
+def process_input(filename):
+    res_name = 'C:/Users/jorge/Desktop/AppResults/res_' + filename[-26:]
+    
+    image = Image.open(filename).convert('RGB')
+    sr_image = model.predict(np.array(image))
+    sr_image.save(filename)
 
-# display each image in the upload folder
-import os
-import glob
-
-input_folder = 'upload'
-result_folder = 'results'
-input_list = sorted(glob.glob(os.path.join(input_folder, '*')))
-output_list = sorted(glob.glob(os.path.join(result_folder, '*')))
-for input_path, output_path in zip(input_list, output_list):
-  img_input = imread(input_path)
-  img_output = imread(output_path)
-  # display(img_input, img_output)
-  
-# Download the results
-zip_filename = 'Real-ESRGAN_result.zip'
-if os.path.exists(zip_filename):
-  os.remove(zip_filename)
-os.system(f"zip -r -j {zip_filename} results/*")
-dst_path.download(zip_filename)
+    img_output = cv2.imread(filename)
+    cv2.imwrite(res_name, img_output)
+    
+    return res_name
