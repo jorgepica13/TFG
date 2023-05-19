@@ -203,6 +203,14 @@ def show_images(self, path_image):
     im3_label.place(x=950, y=250)
     
     print(label_class, ' ', confidence_class)
+    pred_text = 'Pred: ' + label_class
+    text0 = tk.Label(self, text=pred_text)
+    text0.place(x=950, y=200)
+    
+    conf_text = '% de confianza: ' + str(confidence_class)
+    text1 = tk.Label(self, text=conf_text)
+    text1.place(x=950, y=220)
+    
     print('DONE')
     
 class PageTwo(tk.Frame):  
