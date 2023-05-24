@@ -115,29 +115,41 @@ def show_images(self, path_image):
     clear_frame(self)
     self.update()
     
+    text0 = tk.Label(self, text='Segmentación')
+    text0.place(x=110, y=170)
+    text0.config(font=("Verdana", 14))
     im0_label = tk.Label(self, image=im0, height=256, width=256)
     im0_label.place(x=50, y=250)
-  
+    
+    text1 = tk.Label(self, text='Recorte')
+    text1.place(x=440, y=170)
+    text1.config(font=("Verdana", 14))
     im1_label = tk.Label(self, image=im1, height=256, width=256)
     im1_label.place(x=350, y=250)
     
+    text2 = tk.Label(self, text='Restauración')
+    text2.place(x=710, y=170)
+    text2.config(font=("Verdana", 14))
     im2_label = tk.Label(self, image=im2, height=256, width=256)
     im2_label.place(x=650, y=250)
-
+    
+    text3 = tk.Label(self, text='Clasificación')
+    text3.place(x=1010, y=170)
+    text3.config(font=("Verdana", 14))
     im3_label = tk.Label(self, image=im3, height=256, width=256)
     im3_label.place(x=950, y=250)
     
     pred_text = 'Pred: ' + label_class
-    text0 = tk.Label(self, text=pred_text)
-    text0.place(x=950, y=200)
+    text4 = tk.Label(self, text=pred_text)
+    text4.place(x=950, y=200)
     
     conf_text = '% de confianza: ' + str(confidence_class)
-    text1 = tk.Label(self, text=conf_text)
-    text1.place(x=950, y=220)
+    text5 = tk.Label(self, text=conf_text)
+    text5.place(x=950, y=220)
     
-    text2 = tk.Label(self, text='Proceso finalizado')
-    text2.place(x=600, y=600)
-    text2.config(font=("Verdana", 14))
+    text6 = tk.Label(self, text='¡¡Proceso finalizado!!')
+    text6.place(x=600, y=600)
+    text6.config(font=("Verdana", 14))
 
 
 class StartPage(tk.Frame):  
