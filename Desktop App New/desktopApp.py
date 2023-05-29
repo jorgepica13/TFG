@@ -82,74 +82,74 @@ def load_file(self):
     
 
 def show_images(self, path_image):
-    progressbar = ttk.Progressbar()
-    progressbar.place(x=580, y=580, width=200)
-    self.update()
     
-    global im0, im1, im2, im3
+    if(len(self.winfo_children()) == 6):
     
-    seg_im, mask_im = segmentation.seg_inference(path_image)
-    im0 = ImageTk.PhotoImage(Image.open(seg_im))
-    progressbar.step(25)
-    self.update()
-
-    cut_im = cut.cut_inference(path_image, mask_im)
-    im1 = ImageTk.PhotoImage(Image.open(cut_im))
-    progressbar.step(25)
-    self.update()
+        clear_frame(self)
+        
+        progressbar = ttk.Progressbar()
+        progressbar.place(x=580, y=580, width=200)
+        self.update()
+        
+        global im0, im1, im2, im3
+        
+        seg_im, mask_im = segmentation.seg_inference(path_image)
+        im0 = ImageTk.PhotoImage(Image.open(seg_im))
+        progressbar.step(25)
+        
+        text0 = tk.Label(self, text='Segmentación')
+        text0.place(x=110, y=170)
+        text0.config(font=("Verdana", 14))
+        im0_label = tk.Label(self, image=im0, height=256, width=256)
+        im0_label.place(x=50, y=250)
+        self.update()
     
-    res_im = restore.process_input(cut_im)
-    im2 = ImageTk.PhotoImage(Image.open(res_im))
-    progressbar.step(25)
-    self.update()
-    
-    label_class, confidence_class = classification.class_inference(res_im)
-    im3 = ImageTk.PhotoImage(Image.open(path_image))
-    progressbar.step(24)
-    self.update()
-    
-    time.sleep(2)
-    
-    progressbar.step(1)
-    progressbar.place_forget()    
-    clear_frame(self)
-    self.update()
-    
-    text0 = tk.Label(self, text='Segmentación')
-    text0.place(x=110, y=170)
-    text0.config(font=("Verdana", 14))
-    im0_label = tk.Label(self, image=im0, height=256, width=256)
-    im0_label.place(x=50, y=250)
-    
-    text1 = tk.Label(self, text='Recorte')
-    text1.place(x=440, y=170)
-    text1.config(font=("Verdana", 14))
-    im1_label = tk.Label(self, image=im1, height=256, width=256)
-    im1_label.place(x=350, y=250)
-    
-    text2 = tk.Label(self, text='Restauración')
-    text2.place(x=710, y=170)
-    text2.config(font=("Verdana", 14))
-    im2_label = tk.Label(self, image=im2, height=256, width=256)
-    im2_label.place(x=650, y=250)
-    
-    text3 = tk.Label(self, text='Clasificación')
-    text3.place(x=1010, y=170)
-    text3.config(font=("Verdana", 14))
-    im3_label = tk.Label(self, image=im3, height=256, width=256)
-    im3_label.place(x=950, y=250)
-    
-    pred_text = 'Pred: ' + label_class
-    text4 = tk.Label(self, text=pred_text)
-    text4.place(x=950, y=200)
-    
-    conf_text = '% de confianza: ' + str(confidence_class)
-    text5 = tk.Label(self, text=conf_text)
-    text5.place(x=950, y=220)
-    
-    text6 = tk.Label(self, text='¡¡Proceso finalizado!!')
-    text6.place(x=600, y=600)
-    text6.config(font=("Verdana", 14))
+        cut_im = cut.cut_inference(path_image, mask_im)
+        im1 = ImageTk.PhotoImage(Image.open(cut_im))
+        progressbar.step(25)
+        
+        text1 = tk.Label(self, text='Recorte')
+        text1.place(x=440, y=170)
+        text1.config(font=("Verdana", 14))
+        im1_label = tk.Label(self, image=im1, height=256, width=256)
+        im1_label.place(x=350, y=250)
+        self.update()
+        
+        res_im = restore.process_input(cut_im)
+        im2 = ImageTk.PhotoImage(Image.open(res_im))
+        progressbar.step(25)
+        
+        text2 = tk.Label(self, text='Restauración')
+        text2.place(x=710, y=170)
+        text2.config(font=("Verdana", 14))
+        im2_label = tk.Label(self, image=im2, height=256, width=256)
+        im2_label.place(x=650, y=250)
+        self.update()
+        
+        label_class, confidence_class = classification.class_inference(res_im)
+        im3 = ImageTk.PhotoImage(Image.open(path_image))
+        progressbar.step(24)
+        
+        text3 = tk.Label(self, text='Clasificación')
+        text3.place(x=1010, y=170)
+        text3.config(font=("Verdana", 14))
+        im3_label = tk.Label(self, image=im3, height=256, width=256)
+        im3_label.place(x=950, y=250)
+        
+        pred_text = 'Pred: ' + label_class
+        text4 = tk.Label(self, text=pred_text)
+        text4.place(x=950, y=200)
+        
+        conf_text = '% de confianza: ' + str(confidence_class)
+        text5 = tk.Label(self, text=conf_text)
+        text5.place(x=950, y=220)
+        self.update()
+        
+        time.sleep(2)
+        
+        progressbar.step(1)
+        progressbar.place_forget()    
+        self.update()
 
 
 class StartPage(tk.Frame):  
