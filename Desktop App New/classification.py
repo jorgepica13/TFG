@@ -12,16 +12,20 @@ import cv2
 from torchvision.models import resnet50, ResNet50_Weights
 
 def credibility(output_labels):
-  values = [0, 0, 0]
+    values = [0, 0, 0]
+    iposibles = [0, 1, 2]
   
-  nlabels = len(output_labels.indices[0])
-  for i in range(nlabels):
-    values[int(output_labels.indices[0,i])] = float(output_labels.values[0,i])
+    nlabels = len(output_labels.indices[0])
+  
+    for i in range(nlabels):
+        indice = int(output_labels.indices[0,i])
+        if indice in iposibles:
+            values[int(output_labels.indices[0,i])] = float(output_labels.values[0,i])
 
-  total = np.sum(values)
-  max = np.max(values)
+    total = np.sum(values)
+    mprobable = np.max(values)
 
-  return float(max/total * 100)
+    return float(mprobable/total * 100)
 
 
 def class_inference(image_test):
@@ -52,10 +56,6 @@ def class_inference(image_test):
     
     # read and preprocess the image
     image = cv2.imread(image_test)
-    # get the ground truth class
-    #gt_class = image_test.split('/')[-2]
-    # orig_image = image.copy()
-    # convert to RGB format
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = transform(image)
     # add batch dimension
@@ -64,29 +64,12 @@ def class_inference(image_test):
         outputs = model(image.to(device))
     output_label = torch.topk(outputs, 1)
     
+    if len(labels) <= int(output_label.indices):
+        return 'unknown', 0.0
+    
     # Valor de confianza en la prediccion de la clase
     confidence_value = credibility(torch.topk(outputs, 3))
     
     pred_class = labels[int(output_label.indices)]
-    '''
-    cv2.putText(orig_image, 
-        f"GT: {gt_class}",
-        (10, 25),
-        cv2.FONT_HERSHEY_SIMPLEX, 
-        0.6, (0, 255, 0), 2, cv2.LINE_AA
-    )
-    cv2.putText(orig_image, 
-        f"Pred: {pred_class}",
-        (10, 55),
-        cv2.FONT_HERSHEY_SIMPLEX, 
-        0.6, (0, 0, 255), 2, cv2.LINE_AA
-    )
-    
-    print(f"GT: {gt_class}, pred: {pred_class}")
-    print('Porcentaje de confianza: ', confidence_value, '%')
-    cv2.imshow(orig_image)
-    cv2.waitKey(0)
-    cv2.imwrite(f"outputs/{gt_class}{image_test.split('/')[-1].split('.')[0]}.png", orig_image)
-    '''
     
     return pred_class, confidence_value

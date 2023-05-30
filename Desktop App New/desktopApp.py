@@ -13,7 +13,7 @@ import segmentation, cut, restore, classification
 import tkinter as tk  
 from tkinter import ttk
 import time
-  
+
 LARGE_FONT= ("Verdana", 12)  
   
 class SeaofBTCapp(tk.Tk):  

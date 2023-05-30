@@ -11,16 +11,6 @@ from PIL import Image
 import cv2
 
 def seg_inference(image_path):
-    # Construct the argument parser.
-    '''
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input', help='path to input dir')
-    args = parser.parse_args()
-    
-    out_dir = '/content/drive/My Drive/segmentation_codes/outputs_bin/'
-    out_dir = os.path.join(out_dir, 'inference_results')
-    os.makedirs(out_dir, exist_ok=True)
-    '''
     # Set computation device.
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
@@ -43,8 +33,7 @@ def seg_inference(image_path):
     segmented_image = seg_utils.draw_segmentation_map(outputs)
         
     final_image, final_mask = seg_utils.image_overlay(image, segmented_image)
-    # cv2_imshow(final_image)
-    #cv2.waitKey(1)
+
     new_image = 'C:/Users/jorge/Desktop/AppResults/seg_' + image_path[-26:] 
     new_mask = 'C:/Users/jorge/Desktop/AppResults/mask_' + image_path[-26:-4] + '.png'
     cv2.imwrite(new_image, final_image)
