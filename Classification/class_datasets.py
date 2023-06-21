@@ -32,13 +32,13 @@ valid_transform = transforms.Compose([
 
 # training dataset
 train_dataset = datasets.ImageFolder(
-    root='/content/drive/My Drive/DATASET-CUT/train',
+    root='/mnt/homeGPU/jpicado/TFG/dataset_restored/train',
     transform=train_transform
 )
 
 # validation dataset
 valid_dataset = datasets.ImageFolder(
-    root='/content/drive/My Drive/DATASET-CUT/valid/',
+    root='/mnt/homeGPU/jpicado/TFG/dataset_restored/valid',
     transform=valid_transform
 )
 
