@@ -7,8 +7,10 @@ import tkinter as tk
 from tkinter import font
 from PIL import ImageTk, Image
 from tkinter import filedialog
+import segmentation, cut, restore, classification
+from tkinter import ttk
+import time
 
-IMAGEN_SELECCIONADA = ''
 
 # Función que se ejecuta al hacer clic en el botón
 def on_button_click():
@@ -23,6 +25,17 @@ def desaparecer_botonLoadFile():
 def colocarBotonesTrasFoto():
     botonLoadFile.place_forget()
     
+    global ruta_imagen
+    ruta_imagen = cargarImagen()
+    
+    imageOr = Image.open(ruta_imagen)
+    imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
+    imageOr_tk = ImageTk.PhotoImage(imageOr)
+    label_imageOr.configure(image=imageOr_tk)
+    label_imageOr.image = imageOr_tk
+    
+    idImSelec.configure(text=ruta_imagen[-26:])
+    
     textoImSelec.place(x=0.4375*ancho_pantalla, y=0.2*alto_pantalla)
     botonHomeScreen.place(x=0.31*ancho_pantalla, y=0.75*alto_pantalla)
     botonStartProcess.place(x=0.51*ancho_pantalla, y=0.75*alto_pantalla)
@@ -30,10 +43,84 @@ def colocarBotonesTrasFoto():
     idImSelec.place(x=0.41*ancho_pantalla, y=0.62*alto_pantalla)
     print('COLOCADOS')
     
-    IMAGEN_SELECCIONADA = cargarImagen()
-    print(IMAGEN_SELECCIONADA)
+    # IMAGEN_SELECCIONADA = cargarImagen()
+    # print(IMAGEN_SELECCIONADA)
     # canvas.pack_forget()
     # boton.config(text="Aparecer", command=aparecer_lienzo)
+    
+def proceso_segmentacion():
+    segImage, maskImage = segmentation.seg_inference(ruta_imagen)
+    # global segImage, maskImage
+    imageSeg = Image.open(segImage)
+    imageSeg = imageSeg.resize((256, 256))  # Ajusta el tamaño de la imagen 
+    imageSeg_tk = ImageTk.PhotoImage(imageSeg)
+    label_imageSeg.configure(image=imageSeg_tk)
+    label_imageSeg.image = imageSeg_tk
+    
+    label_imageSeg.place(x=0.05*ancho_pantalla, y=0.25*alto_pantalla)
+    textoImSeg.place(x=0.0825*ancho_pantalla, y=0.625*alto_pantalla)
+    
+    return segImage, maskImage
+
+def proceso_recorte(mask):
+    cutImage = cut.cut_inference(ruta_imagen, mask)
+    # global cutImage
+    imageRec = Image.open(cutImage)
+    # imageRec = imageRec.resize((256, 256))  # Ajusta el tamaño de la imagen 
+    imageRec_tk = ImageTk.PhotoImage(imageRec)
+    label_imageRec.configure(image=imageRec_tk)
+    label_imageRec.image = imageRec_tk
+    
+    label_imageRec.place(x=0.38*ancho_pantalla, y=0.4225*alto_pantalla, anchor="center")
+    textoImRec.place(x=0.36*ancho_pantalla, y=0.625*alto_pantalla)
+    
+    return cutImage
+    
+def proceso_restauracion(cutImage):
+    resImage = restore.process_input(cutImage)
+    # global resImage
+    imageRes = Image.open(resImage)
+    print(imageRes.size)
+    
+    if imageRes.size[0] > 256 or imageRes.size[1] > 256:
+        imageRes = imageRes.resize((256, 256))  # Ajusta el tamaño de la imagen 
+        
+    imageRes_tk = ImageTk.PhotoImage(imageRes)
+    label_imageRes.configure(image=imageRes_tk)
+    label_imageRes.image = imageRes_tk
+    
+    label_imageRes.place(x=0.615*ancho_pantalla, y=0.4225*alto_pantalla, anchor="center")
+    textoImRes.place(x=0.56*ancho_pantalla, y=0.625*alto_pantalla)
+    
+    return resImage
+
+def proceso_clasificacion(resImage):
+    classPred, confPred = classification.class_inference(resImage)
+    
+    imageOr = Image.open(ruta_imagen)
+    imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
+    imageOr_tk = ImageTk.PhotoImage(imageOr)
+    label_imageOr.configure(image=imageOr_tk)
+    label_imageOr.image = imageOr_tk
+    
+    label_imageOr.place(x=0.755*ancho_pantalla, y=0.25*alto_pantalla)
+    textoImClass.place(x=0.7875*ancho_pantalla, y=0.625*alto_pantalla)
+    
+    print(classPred.upper(), ' ', confPred)
+    
+    global textResult
+    textConfPercen = "PREDICTION: " + classPred.upper() + "\n\n"
+    textConfPercen += "CONFIDENCE PERCENTAGE: " + confPred + " %"
+    print(textConfPercen)
+    textResult = canvasConfPercen.create_text(ancho_pantalla*0.15,
+                                              alto_pantalla*0.035, 
+                                              text=textConfPercen, 
+                                              font=fuente_resultado,
+                                              fill="#FFFFFF",
+                                              anchor="n",
+                                              justify="center")
+    
+    return classPred, confPred
 
 def mostrarFotos():
     textoImSelec.place_forget()
@@ -41,20 +128,36 @@ def mostrarFotos():
     botonStartProcess.place_forget()
     label_imageOr.place_forget()
     idImSelec.place_forget()
+    botonHomeScreen.place_forget()
     
-    label_imageSeg.place(x=0.05*ancho_pantalla, y=0.25*alto_pantalla)
-    textoImSeg.place(x=0.0825*ancho_pantalla, y=0.625*alto_pantalla)
+    barra_progreso.place(x=0.35*ancho_pantalla,
+                         y=0.75*alto_pantalla,
+                         width=0.3*ancho_pantalla,
+                         height=0.05*alto_pantalla)
+
+    ventana.update()
     
-    label_imageRec.place(x=0.285*ancho_pantalla, y=0.25*alto_pantalla)
-    textoImRec.place(x=0.36*ancho_pantalla, y=0.625*alto_pantalla)
+    segImage, maskImage = proceso_segmentacion()
+    barra_progreso.step(20)
+    ventana.update()
+
+    cutImage = proceso_recorte(maskImage)
+    barra_progreso.step(20)
+    ventana.update()
     
-    label_imageRes.place(x=0.52*ancho_pantalla, y=0.25*alto_pantalla)
-    textoImRes.place(x=0.56*ancho_pantalla, y=0.625*alto_pantalla)
+    resImage = proceso_restauracion(cutImage)
+    barra_progreso.step(40)
+    ventana.update()
     
-    label_imageOr.place(x=0.755*ancho_pantalla, y=0.25*alto_pantalla)
-    textoImClass.place(x=0.7875*ancho_pantalla, y=0.625*alto_pantalla)
+    classPred, confPred = proceso_clasificacion(resImage)
+    barra_progreso.step(19.99)
+    ventana.update()
     
-    confPercen.place(x=0.64*ancho_pantalla, y=0.715*alto_pantalla)
+    time.sleep(2)
+    barra_progreso.step(0.01)
+    barra_progreso.place_forget()
+    
+    canvasConfPercen.place(x=0.64*ancho_pantalla, y=0.715*alto_pantalla)
     
     botonHomeScreen.place(x=0.05*ancho_pantalla, y=0.8*alto_pantalla)
     
@@ -74,9 +177,12 @@ def volver_inicio():
     textoImRes.place_forget()
     label_imageOr.place_forget()
     textoImClass.place_forget()
-    confPercen.place_forget()
+    canvasConfPercen.place_forget()
     botonHomeScreen.place_forget()
     
+    print('-------------------------')
+    canvasConfPercen.delete(textResult)
+    print('-------------------------')
     
     botonLoadFile.place(x=0.41*ancho_pantalla, y=0.4*alto_pantalla)
     print('VUELTA INICIO')
@@ -84,11 +190,9 @@ def volver_inicio():
     # boton.config(text="Aparecer", command=aparecer_lienzo)
     
 def cargarImagen():
-    filename = filedialog.askopenfilename(initialdir=r"C:\Users\jorge\Desktop\galaxy_segmentation\test_images",
-                                          title="Select A File",
-                                          filetypes=(("jpg files", "*.jpg"), ("all files", "*.*")))
-    
-    return filename
+    return filedialog.askopenfilename(initialdir=r"C:\Users\jorge\Desktop\galaxy_segmentation\test_images",
+                                               title="SELECT AN IMAGE",
+                                               filetypes=(("jpg files", "*.jpg"), ("all files", "*.*")))
     
     
 # Crear la ventana
@@ -162,12 +266,13 @@ textoImSelec = tk.Label(ventana,
 # textoImSelec.place(x=0.4375*ancho_pantalla, y=0.2*alto_pantalla)
 
 # Cargar la imagen
-imageOr = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
-imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
-imageOr_tk = ImageTk.PhotoImage(imageOr)
+# imageOr = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
+# imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
+# imageOr_tk = ImageTk.PhotoImage(imageOr)
 
 # Mostrar la imagen en un Label
-label_imageOr = tk.Label(ventana, image=imageOr_tk)
+# label_imageOr = tk.Label(ventana, image=imageOr_tk)
+label_imageOr = tk.Label(ventana)
 # label_imageOr.place(x=0.4*ancho_pantalla, y=0.275*alto_pantalla)
 # label_imagen.pack()
 
@@ -175,7 +280,7 @@ label_imageOr = tk.Label(ventana, image=imageOr_tk)
 fuente_id = font.Font(family='Arimo', size=12, weight="bold")
 
 idImSelec = tk.Label(ventana, 
-                        text="Dr7_587731187282477155.jpg", 
+                        text="", 
                         font=fuente_id, 
                         fg="#000000", 
                         bg="#FFFFFF", 
@@ -183,42 +288,42 @@ idImSelec = tk.Label(ventana,
 # idImSelec.place(x=0.41*ancho_pantalla, y=0.62*alto_pantalla)
 
 # Cargar imagen original
-imageOr = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
-imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
-imageOr_tk = ImageTk.PhotoImage(imageOr)
+# imageOr = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
+# imageOr = imageOr.resize((256, 256))  # Ajusta el tamaño de la imagen 
+# imageOr_tk = ImageTk.PhotoImage(imageOr)
 
 # Mostrar la imagen en un Label
-label_imageOr = tk.Label(ventana, image=imageOr_tk)
+# label_imageOr = tk.Label(ventana)
 # label_imageOr.place(x=0.4*ancho_pantalla, y=0.275*alto_pantalla)
 # label_imagen.pack()
 
 # Cargar imagen segmentada
-imageSeg = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
-imageSeg = imageSeg.resize((256, 256))  # Ajusta el tamaño de la imagen 
-imageSeg_tk = ImageTk.PhotoImage(imageSeg)
+# imageSeg = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
+# imageSeg = imageSeg.resize((256, 256))  # Ajusta el tamaño de la imagen 
+# imageSeg_tk = ImageTk.PhotoImage(imageSeg)
 
 # Mostrar la imagen en un Label
-label_imageSeg = tk.Label(ventana, image=imageSeg_tk)
+label_imageSeg = tk.Label(ventana)
 # label_imageOr.place(x=0.4*ancho_pantalla, y=0.275*alto_pantalla)
 # label_imagen.pack()
 
 # Cargar imagen reocrtada
-imageRec = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
-imageRec = imageRec.resize((256, 256))  # Ajusta el tamaño de la imagen 
-imageRec_tk = ImageTk.PhotoImage(imageRec)
+# imageRec = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
+# imageRec = imageRec.resize((256, 256))  # Ajusta el tamaño de la imagen 
+# imageRec_tk = ImageTk.PhotoImage(imageRec)
 
 # Mostrar la imagen en un Label
-label_imageRec = tk.Label(ventana, image=imageRec_tk)
+label_imageRec = tk.Label(ventana, width=256, height=256, bg="#FFFFFF")
 # label_imageOr.place(x=0.4*ancho_pantalla, y=0.275*alto_pantalla)
 # label_imagen.pack()
 
 # Cargar imagen restaurada
-imageRes = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
-imageRes = imageRes.resize((256, 256))  # Ajusta el tamaño de la imagen 
-imageRes_tk = ImageTk.PhotoImage(imageRes)
+# imageRes = Image.open(r"C:\Users\jorge\Desktop\NEW DESIGN Desktop App\ejemploIm.jpg")
+# imageRes = imageRes.resize((256, 256))  # Ajusta el tamaño de la imagen 
+# imageRes_tk = ImageTk.PhotoImage(imageRes)
 
 # Mostrar la imagen en un Label
-label_imageRes = tk.Label(ventana, image=imageRes_tk)
+label_imageRes = tk.Label(ventana, width=256, height=256, bg="#FFFFFF")
 # label_imageOr.place(x=0.4*ancho_pantalla, y=0.275*alto_pantalla)
 # label_imagen.pack()
 
@@ -250,22 +355,24 @@ textoImClass = tk.Label(ventana,
                         bg="#FFFFFF", 
                         justify="center")
 
-textConfPercen = "PREDICTION: UNCERTAIN\n\nCONFIDENCE PERCENTAGE: 92.37 %"
-confPercen = tk.Canvas(ventana, width=0.3*ancho_pantalla, height=0.15*alto_pantalla)
-confPercen.configure(bg="#169D53")
+
+canvasConfPercen = tk.Canvas(ventana, width=0.3*ancho_pantalla, height=0.15*alto_pantalla)
+canvasConfPercen.configure(bg="#169D53")
 # lienzo.pack()
-# confPercen.create_rectangle(50, 50, 200, 150, fill="blue")
+# canvasConfPercen.create_rectangle(50, 50, 200, 150, fill="blue")
 
 # Crear una fuente personalizada
 fuente_resultado = font.Font(family='Arimo', size=15, weight="bold")
 
-confPercen.create_text(ancho_pantalla*0.15,
-                       alto_pantalla*0.035, 
-                       text=textConfPercen, 
-                       font=fuente_resultado,
-                       fill="#FFFFFF",
-                       anchor="n",
-                       justify="center")
+
+# textConfPercen = "PREDICTION: UNCERTAIN\n\nCONFIDENCE PERCENTAGE: 92.37 %"
+# canvasConfPercen.create_text(ancho_pantalla*0.15,
+#                        alto_pantalla*0.035, 
+#                        text=textConfPercen, 
+#                        font=fuente_resultado,
+#                        fill="#FFFFFF",
+#                        anchor="n",
+#                        justify="center")
 
 # Crear un botón con un diseño personalizado
 botonHomeScreen = tk.Button(ventana, 
@@ -277,6 +384,14 @@ botonHomeScreen = tk.Button(ventana,
                   height=int(0.0025*alto_pantalla),
                   command=volver_inicio)
 # botonHomeScreen.place(x=0.41*ancho_pantalla, y=0.4*alto_pantalla) # Colocar el botón en el marco
+
+s = ttk.Style()
+s.theme_use('clam')
+s.configure("grey.Horizontal.TProgressbar", foreground='#3B3B3B', background='#3B3B3B')
+barra_progreso = ttk.Progressbar(ventana, 
+                                 style="grey.Horizontal.TProgressbar", 
+                                 orient="horizontal",
+                                 mode="determinate")
 
 
 ventana.mainloop()
