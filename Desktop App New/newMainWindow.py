@@ -75,6 +75,25 @@ def proceso_recorte(mask):
     textoImRec.place(x=0.36*ancho_pantalla, y=0.625*alto_pantalla)
     
     return cutImage
+
+def calculo_dimRes(dims):
+    print('YESS!')
+    proporcion = 0.0
+    x_dim = 0
+    y_dim = 0
+    
+    if dims[0] < dims[1]:
+        proporcion = dims[1]/256
+        x_dim = dims[0]/proporcion
+        y_dim = 256
+    else:
+        proporcion = dims[0]/256
+        x_dim = 256
+        y_dim = dims[1]/proporcion
+        
+    print(round(x_dim), ' ', round(y_dim), ' ', proporcion)
+    return round(x_dim), round(y_dim)
+        
     
 def proceso_restauracion(cutImage):
     resImage = restore.process_input(cutImage)
@@ -83,7 +102,8 @@ def proceso_restauracion(cutImage):
     print(imageRes.size)
     
     if imageRes.size[0] > 256 or imageRes.size[1] > 256:
-        imageRes = imageRes.resize((256, 256))  # Ajusta el tamaño de la imagen 
+        x_dim, y_dim = calculo_dimRes(imageRes.size)
+        imageRes = imageRes.resize((x_dim, y_dim))  # Ajusta el tamaño de la imagen 
         
     imageRes_tk = ImageTk.PhotoImage(imageRes)
     label_imageRes.configure(image=imageRes_tk)
