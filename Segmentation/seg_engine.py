@@ -1,14 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import torch
 import numpy as np
 
 from tqdm import tqdm
 from seg_utils import draw_translucent_seg_maps
-from metrics import pix_acc
+from seg_metrics import pix_acc
 
 def train(
     model,

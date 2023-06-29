@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 ALL_CLASSES = ['background', 'elliptical', 'spiral', 'uncertain']
 
 LABEL_COLORS_LIST = [

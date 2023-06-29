@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import glob
 import numpy as np
 import torch
@@ -24,10 +19,8 @@ def get_images(root_path):
 
     return train_images, train_masks, valid_images, valid_masks
 
+# Transform to normalize image.
 def normalize():
-    """
-    Transform to normalize image.
-    """
     transform = A.Compose([
         A.Normalize(
             mean=[0.45734706, 0.43338275, 0.40058118],
@@ -37,12 +30,9 @@ def normalize():
     ])
     return transform
 
+# Transforms/augmentations for training images and masks.
+# :param img_size: Integer, for image resize.
 def train_transforms(img_size):
-    """
-    Transforms/augmentations for training images and masks.
-
-    :param img_size: Integer, for image resize.
-    """
     train_image_transform = A.Compose([
         A.Resize(img_size, img_size, always_apply=True),
         A.HorizontalFlip(p=0.5),
@@ -53,12 +43,9 @@ def train_transforms(img_size):
     ])
     return train_image_transform
 
+# Transforms/augmentations for validation images and masks.
+# :param img_size: Integer, for image resize.
 def valid_transforms(img_size):
-    """
-    Transforms/augmentations for validation images and masks.
-
-    :param img_size: Integer, for image resize.
-    """
     valid_image_transform = A.Compose([
         A.Resize(img_size, img_size, always_apply=True),
     ])
