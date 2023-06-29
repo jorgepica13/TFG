@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import torch
 import seg_config_bin, seg_model, seg_utils
 
@@ -15,7 +10,7 @@ def seg_inference(image_path):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     model = seg_model.prepare_model(len(seg_config_bin.ALL_CLASSES))
-    ckpt = torch.load(r'C:\Users\jorge\Desktop\Models_files\seg_model.pth')
+    ckpt = torch.load(r'C:\Users\jorge\Desktop\Models_files\best_model_seg.pth')
     model.load_state_dict(ckpt['model_state_dict'])
     model.eval().to(device)
     

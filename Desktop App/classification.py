@@ -1,32 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import torch
 import torchvision.transforms as transforms
-import numpy as np
 import cv2
+import torch.nn.functional as F
 
-# from model import CNNMOdel
 from torchvision.models import resnet50, ResNet50_Weights
-
-def credibility(output_labels):
-    values = [0, 0, 0]
-    iposibles = [0, 1, 2]
-  
-    nlabels = len(output_labels.indices[0])
-  
-    for i in range(nlabels):
-        indice = int(output_labels.indices[0,i])
-        if indice in iposibles:
-            values[int(output_labels.indices[0,i])] = float(output_labels.values[0,i])
-
-    total = np.sum(values)
-    mprobable = np.max(values)
-
-    return float(mprobable/total * 100)
-
 
 def class_inference(image_test):
     # the computation device
@@ -39,7 +16,7 @@ def class_inference(image_test):
     weights = ResNet50_Weights.DEFAULT
     model = resnet50(weights).to(device)
     
-    checkpoint = torch.load(r'C:\Users\jorge\Desktop\Models_files\class_model.pth', map_location=device)
+    checkpoint = torch.load(r'C:\Users\jorge\Desktop\Models_files\best_model_class.pth', map_location=device)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
     
@@ -64,11 +41,11 @@ def class_inference(image_test):
         outputs = model(image.to(device))
     output_label = torch.topk(outputs, 1)
     
-    if len(labels) <= int(output_label.indices):
-        return 'unknown', 0.0
+    probs = F.softmax(outputs, dim=1)
+    probs3 = probs.topk(3)
     
     # Valor de confianza en la prediccion de la clase
-    confidence_value = credibility(torch.topk(outputs, 3))
+    confidence_value = '{:.2f}'.format(float(probs3.values[0,0])*100)
     
     pred_class = labels[int(output_label.indices)]
     

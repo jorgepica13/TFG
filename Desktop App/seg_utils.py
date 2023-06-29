@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import numpy as np
 import cv2
 import torch
@@ -16,26 +11,18 @@ from seg_config_bin import (
 
 plt.style.use('ggplot')
 
+# This (`class_values`) assigns a specific class label to the each of the classes.
+# :param all_classes: List containing all class names.
+# :param classes_to_train: List containing class names to train.
 def set_class_values(all_classes, classes_to_train):
-    """
-    This (`class_values`) assigns a specific class label to the each of the classes.
-    For example, `animal=0`, `archway=1`, and so on.
-
-    :param all_classes: List containing all class names.
-    :param classes_to_train: List containing class names to train.
-    """
     class_values = [all_classes.index(cls.lower()) for cls in classes_to_train]
     return class_values
 
+# This function encodes the pixels belonging to the same class in the image into the same label
+# :param mask: NumPy array, segmentation mask.
+# :param class_values: List containing class values
+# :param label_colors_list: List containing RGB color value for each class.
 def get_label_mask(mask, class_values, label_colors_list):
-    """
-    This function encodes the pixels belonging to the same class
-    in the image into the same label
-
-    :param mask: NumPy array, segmentation mask.
-    :param class_values: List containing class values, e.g car=0, bus=1.
-    :param label_colors_list: List containing RGB color value for each class.
-    """
     label_mask = np.zeros((mask.shape[0], mask.shape[1]), dtype=np.uint8)
     for value in class_values:
         for ii, label in enumerate(label_colors_list):
@@ -45,6 +32,7 @@ def get_label_mask(mask, class_values, label_colors_list):
     label_mask = label_mask.astype(int)
     return label_mask
 
+# This function color codes the segmentation maps that is generated while validating.
 def draw_translucent_seg_maps(
     data, 
     output, 
@@ -53,10 +41,6 @@ def draw_translucent_seg_maps(
     val_seg_dir, 
     label_colors_list,
 ):
-    """
-    This function color codes the segmentation maps that is generated while
-    validating. THIS IS NOT TO BE CALLED FOR SINGLE IMAGE TESTING
-    """
     alpha = 1 # how much transparency
     beta = 0.6 # alpha + beta should be 1
     gamma = 0 # contrast
@@ -78,7 +62,6 @@ def draw_translucent_seg_maps(
     green_map = np.zeros_like(seg_map).astype(np.uint8)
     blue_map = np.zeros_like(seg_map).astype(np.uint8)
 
-
     for label_num in range(0, len(label_colors_list)):
         index = seg_map == label_num
         red_map[index] = np.array(viz_map)[label_num, 0]
@@ -89,18 +72,14 @@ def draw_translucent_seg_maps(
     rgb = np.array(rgb, dtype=np.float32)
     # convert color to BGR format for OpenCV
     rgb = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
-    # cv2.imshow('rgb', rgb)
-    # cv2.waitKey(0)
+
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     cv2.addWeighted(image, alpha, rgb, beta, gamma, image)
     cv2.imwrite(f"{val_seg_dir}/e{epoch}_b{i}.jpg", image)
 
+# Class to save the best model while training. If the current epoch's validation
+# loss is less than the previous least less, then save the model state.
 class SaveBestModel:
-    """
-    Class to save the best model while training. If the current epoch's 
-    validation loss is less than the previous least less, then save the
-    model state.
-    """
     def __init__(
         self, best_valid_loss=float('inf')
     ):
@@ -118,10 +97,8 @@ class SaveBestModel:
                 'model_state_dict': model.state_dict(),
                 }, os.path.join(out_dir, 'best_'+name+'.pth'))
 
+# Function to save the trained model to disk.
 def save_model(epochs, model, optimizer, criterion, out_dir, name='model'):
-    """
-    Function to save the trained model to disk.
-    """
     torch.save({
                 'epoch': epochs,
                 'model_state_dict': model.state_dict(),
@@ -129,10 +106,8 @@ def save_model(epochs, model, optimizer, criterion, out_dir, name='model'):
                 'loss': criterion,
                 }, os.path.join(out_dir, name+'.pth'))
 
+# Function to save the loss and accuracy plots to disk.
 def save_plots(train_acc, valid_acc, train_loss, valid_loss, out_dir):
-    """
-    Function to save the loss and accuracy plots to disk.
-    """
     # Accuracy plots.
     plt.figure(figsize=(10, 7))
     plt.plot(

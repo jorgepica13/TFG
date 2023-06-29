@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: JORGE PICADO CARINO
-"""
-
 import cv2
 import numpy as np
 
@@ -27,7 +22,6 @@ def cut_inference(image_path, mask_path):
     y_min = np.min(ys)
     x_max = np.max(xs)
     y_max = np.max(ys)
-        
 
     pts = np.array(poly, np.int32)
     im = cv2.imread(image_path)
