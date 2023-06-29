@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+# creation of a simple model to test correct functioning
 class CNNModel(nn.Module):
     def __init__(self):
         super(CNNModel, self).__init__()

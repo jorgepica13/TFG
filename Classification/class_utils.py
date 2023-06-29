@@ -4,21 +4,18 @@ import matplotlib.pyplot as plt
 
 matplotlib.style.use('ggplot')
 
+# Function to save the trained model to disk.
 def save_model(epochs, model, optimizer, criterion):
-    """
-    Function to save the trained model to disk.
-    """
     torch.save({
                 'epoch': epochs,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': criterion,
                 }, '/mnt/homeGPU/jpicado/TFG/classification/outputs/model.pth')
-    
+
+
+# Function to save the loss and accuracy plots to disk.
 def save_plots(train_acc, valid_acc, train_loss, valid_loss):
-    """
-    Function to save the loss and accuracy plots to disk.
-    """
     # accuracy plots
     plt.figure(figsize=(10, 7))
     plt.plot(
