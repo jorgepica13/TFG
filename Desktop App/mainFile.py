@@ -151,6 +151,19 @@ def mostrarFotos():
     canvasConfPercen.place(x=0.64*ancho_pantalla, y=0.715*alto_pantalla)
     
     botonHomeScreen.place(x=0.05*ancho_pantalla, y=0.8*alto_pantalla)
+    
+def canvas_tiene_texto(can):
+    # Obtener todos los elementos en el lienzo
+    all_items = can.find_all()
+
+    # Verificar si alguno de los elementos es un elemento de texto y tiene contenido
+    for item in all_items:
+        if can.type(item) == "text":
+            text_content = can.itemcget(item, "text")
+            if text_content.strip():
+                return True
+
+    return False
 
 def volver_inicio():
     textoImSelec.place_forget()
@@ -169,7 +182,8 @@ def volver_inicio():
     canvasConfPercen.place_forget()
     botonHomeScreen.place_forget()
     
-    canvasConfPercen.delete(textResult)
+    if canvas_tiene_texto(canvasConfPercen):
+        canvasConfPercen.delete(textResult)
     
     botonLoadFile.place(x=0.41*ancho_pantalla, y=0.4*alto_pantalla)
     
