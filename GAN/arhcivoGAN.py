@@ -1,0 +1,1 @@
+# Carperta para Real-ESRGAN
